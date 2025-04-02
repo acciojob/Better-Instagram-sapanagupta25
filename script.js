@@ -1,49 +1,33 @@
-//your code here
-const images = document.querySelectorAll('.image');
+const images = document.getElementsByClassName("image");
+let draggedElement = null;
 
-let draggedItem = null;
+for(let i=0; i<images.length; i++){
+	images[i].addEventListener("dragstart", (e) => {
+		draggedElement = e.target;
+		draggedElement.classList.add("selected");
+	});
 
-images.forEach(image => {
-  // Start dragging
-  image.addEventListener('dragstart', (e) => {
-    draggedItem = image;
-    setTimeout(() => {
-      image.style.display = 'none';
-    }, 0);
-  });
+	images[i].addEventListener("dragover", (e) => {
+		e.preventDefault();
+		draggedElement.classList.add("selected");
+	});
 
-  // End dragging
-  image.addEventListener('dragend', () => {
-    setTimeout(() => {
-      draggedItem.style.display = 'block';
-      draggedItem = null;
-    }, 0);
-  });
+	images[i].addEventListener("drop", (e) => {
+		e.preventDefault();
 
-  // Drag over (allow drop)
-  image.addEventListener('dragover', (e) => {
-    e.preventDefault();
-  });
+		 if (!draggedElement) {
+	        console.error("draggedElement is null");
+	        return;
+		}
+		draggedElement.classList.remove("selected");
+		
+		let draggedBg = window.getComputedStyle(draggedElement).backgroundImage;
+		let targetBg = window.getComputedStyle(e.target).backgroundImage;
+		if (draggedBg !== targetBg) {
+			draggedElement.style.backgroundImage = targetBg;
+			e.target.style.backgroundImage = draggedBg;
 
-  // Drag enter (highlight drop target)
-  image.addEventListener('dragenter', (e) => {
-    e.preventDefault();
-    image.classList.add('selected');
-  });
-
-  // Drag leave (remove highlight)
-  image.addEventListener('dragleave', () => {
-    image.classList.remove('selected');
-  });
-
-  // Drop (swap elements)
-  image.addEventListener('drop', () => {
-    if (draggedItem !== image) {
-      // Swap the innerHTML (including the <img> element)
-      let temp = draggedItem.innerHTML;
-      draggedItem.innerHTML = image.innerHTML;
-      image.innerHTML = temp;
-    }
-    image.classList.remove('selected');
-  });
-});
+			[draggedElement.innerText, e.target.innerText] = [e.target.innerText, draggedElement.innerText]
+	    }
+	})
+}
